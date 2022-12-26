@@ -10,46 +10,44 @@ import {
     Box,
     Typography,
     Container,
-    createTheme,
-    ThemeProvider,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { axiosApi } from "@/lib/axios";
 import { AxiosResponse } from "axios";
-import { useForm } from "react-hook-form";
 import { useUserState } from "@/atoms/userAtom";
+import { useForm } from "react-hook-form";
 import useNotification from "@/hooks/useNotification";
-
-// POSTデータの型
-type LoginForm = {
-    email: string;
-    password: string;
-};
 
 const theme = createTheme();
 
-const Login = () => {
+// POSTデータの型
+type RegisterForm = {
+    name: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+};
+
+const Register: React.FC = () => {
     const { error } = useNotification();
+    const { setUser } = useUserState();
 
     // React-Hook-Form
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<LoginForm>();
+    } = useForm<RegisterForm>();
 
-    // state定義
-
-    const { setUser } = useUserState();
-
-    const onSubmit = async (data: LoginForm) => {
+    const onSubmit = async (data: RegisterForm) => {
         await axiosApi
             // CSRF保護の初期化
             .get("/sanctum/csrf-cookie")
             .then((response: AxiosResponse) => {
                 // ログイン処理
                 axiosApi
-                    .post("api/login", data)
+                    .post("api/register", data)
                     .then((response: AxiosResponse) => {
                         console.log(response.data);
                         setUser(response.data);
@@ -87,9 +85,21 @@ const Login = () => {
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        スタッフログイン
+                        Sign up
                     </Typography>
-                    <Box sx={{ mt: 1 }}>
+                    <Box component="form" noValidate sx={{ mt: 3 }}>
+                        <TextField
+                            {...register("name", {
+                                required: "必須入力です。",
+                            })}
+                            error={"name" in errors}
+                            helperText={errors.name?.message}
+                            required
+                            fullWidth
+                            id="name"
+                            label="名前"
+                            name="name"
+                        />
                         <TextField
                             {...register("email", {
                                 required: "必須入力です。",
@@ -107,7 +117,6 @@ const Login = () => {
                             id="email"
                             label="メールアドレス"
                             name="email"
-                            autoComplete="email"
                             autoFocus
                         />
                         <TextField
@@ -128,7 +137,19 @@ const Login = () => {
                             label="パスワード"
                             type="password"
                             id="password"
-                            autoComplete="current-password"
+                        />
+                        <TextField
+                            {...register("password_confirmation", {
+                                required: "必須入力です。",
+                            })}
+                            error={"password_confirmation" in errors}
+                            helperText={errors.password_confirmation?.message}
+                            required
+                            fullWidth
+                            name="password_confirmation"
+                            label="パスワード（確認用）"
+                            type="password"
+                            id="password_confirmation"
                         />
                         <Button
                             onClick={handleSubmit(onSubmit)}
@@ -136,27 +157,17 @@ const Login = () => {
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                         >
-                            ログイン
+                            登録する
                         </Button>
-
-                        <Grid container>
-                            <Grid item xs>
-                                <NextLink href="/forgot-password" passHref>
-                                    <Link
-                                        variant="body2"
-                                    >
-                                        パスワードを忘れた方はこちら
-                                    </Link>
-                                </NextLink>
-                            </Grid>
+                        <Grid container justifyContent="flex-end">
                             <Grid item>
-                                <NextLink href="/register" passHref>
-                                    <Link
-                                        variant="body2"
-                                    >
-                                        登録はこちら
-                                    </Link>
-                                </NextLink>
+                            <NextLink href="/login" passHref>
+                                <Link
+                                    variant="body2"
+                                >
+                                    ログイン画面に戻る
+                                </Link>
+                            </NextLink>
                             </Grid>
                         </Grid>
                     </Box>
@@ -165,4 +176,4 @@ const Login = () => {
         </ThemeProvider>
     );
 };
-export default Login;
+export default Register;
