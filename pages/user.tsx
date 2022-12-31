@@ -1,4 +1,6 @@
 import type { NextPage } from 'next';
+import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
 import axios from 'axios';
 
 const Home: NextPage = () => {
@@ -16,28 +18,20 @@ const Home: NextPage = () => {
     };
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center py-2">
-            <button
-                className="mt-4 w-60 rounded-full bg-green-500 py-2 px-4 font-bold text-white hover:bg-green-700"
-                onClick={() => insertUser()}>
+        <Container maxWidth="sm">
+            <Button variant="contained" onClick={() => insertUser()}>
                 Insert User
-            </button>
-            <button
-                className="mt-4 w-60 rounded-full bg-yellow-500 py-2 px-4 font-bold text-white hover:bg-yellow-700"
-                onClick={() => updateUser()}>
+            </Button>
+            <Button variant="contained" onClick={() => updateUser()}>
                 Update User
-            </button>
-            <button
-                className="mt-4 w-60 rounded-full bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
-                onClick={() => getUser()}>
+            </Button>
+            <Button variant="contained" onClick={() => getUser()}>
                 Get User
-            </button>
-            <button
-                className="mt-4 w-60 rounded-full bg-red-500 py-2 px-4 font-bold text-white hover:bg-red-700"
-                onClick={() => deleteUser()}>
+            </Button>
+            <Button variant="contained" onClick={() => deleteUser()}>
                 Delete User
-            </button>
-        </div>
+            </Button>
+        </Container>
     );
 };
 
