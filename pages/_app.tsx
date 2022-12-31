@@ -1,13 +1,15 @@
-import '../styles/globals.css'
-import type { AppProps } from 'next/app'
+import '../styles/globals.css';
+import type { AppPropsWithLayout } from 'next/app';
 import { RecoilRoot } from 'recoil';
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return (
-    <RecoilRoot>
-      <Component {...pageProps} />
-    </RecoilRoot>
-  );
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
+    const getLayout = Component.getLayout ?? (page => page);
+
+    return getLayout(
+        <RecoilRoot>
+            <Component {...pageProps} />
+        </RecoilRoot>,
+    );
 }
 
-export default MyApp
+export default MyApp;
