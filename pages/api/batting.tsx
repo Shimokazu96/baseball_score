@@ -8,7 +8,7 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse,
 ) {
-    const COLLECTION_NAME = 'users';
+    const COLLECTION_NAME = 'batting_records';
     //　初期化する
     if (admin.apps.length === 0) {
         admin.initializeApp({
@@ -19,10 +19,10 @@ export default async function handler(
     const targetDoc = db.collection(COLLECTION_NAME).doc().id;
     if (req.method === 'POST') {
         const docRef = db.collection(COLLECTION_NAME).doc();
+        const { batting_record } = req.body;
         const insertData = {
-            datano: '1',
-            name: 'Symfo',
-            email: 'symfo@example.com',
+            batting_record: batting_record,
+            create_at: new Date(),
         };
         docRef.set(insertData);
     } else if (req.method === 'PATCH') {
