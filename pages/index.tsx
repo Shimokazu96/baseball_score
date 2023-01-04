@@ -1,103 +1,110 @@
-import type { NextPageWithLayout } from 'next';
-import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Grid from '@mui/material/Grid';
-import Stack from '@mui/material/Stack';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { Layout } from '@/components/layouts/Layout';
+import { useCallback, useState, useEffect, useRef } from "react";
+// import "@fullcalendar/react/dist/vdom";
+import { AxiosError, AxiosResponse } from "axios";
+import { axiosApi } from "@/lib/axios";
+import FullCalendar  from "@fullcalendar/react";
+import EventInput  from "@fullcalendar/react";
+import Loading from "@/components/parts/Loading";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import allLocales from "@fullcalendar/core/locales-all";
+import interactionPlugin from "@fullcalendar/interaction";
+import listPlugin from "@fullcalendar/list";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import { format } from "date-fns";
+// import resourceTimeGridPlugin from "@fullcalendar/resource-timegrid";
+import { useSwipeable } from "react-swipeable";
+import useWindowSize, { CalendarDifferenceHeight } from "@/hooks/useWindowSize";
 
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+const TopPage: React.FC = () => {
+    const thisDate = format(new Date(), "yyyy");
+    const calendarRef = useRef<FullCalendar>(null!);
+    const [width, height] = useWindowSize();
+    const calendarHeight = height - CalendarDifferenceHeight;
 
+    const [publicTasks, setPublicTasks] = useState<EventInput[]>([]);
+    const [loading, setLoading] = useState(true);
 
-const Home: NextPageWithLayout = () => {
+    const getPublicTasks = async () => {
+        await axiosApi
+            .get(`/api/public_task/calendar/${thisDate}`)
+            .then((response: AxiosResponse) => {
+                setPublicTasks(response.data);
+            })
+            .catch((err: AxiosError) => console.log(err.response));
+        return publicTasks;
+    };
+    const handlers = useSwipeable({
+        onSwiped: (event) => {
+            const calendarApi = calendarRef.current.getApi();
+            if (event.dir == "Left") {
+                calendarApi.next();
+            }
+            if (event.dir == "Right") {
+                calendarApi.prev();
+            }
+        },
+        trackMouse: true,
+    });
+    useEffect(() => {
+        getPublicTasks();
+        setLoading(false);
+    }, []);
+
+    const handleDateSelect = (date: Date) => {
+        const selectDate = format(date, "yyyy-MM-dd");
+        // navigate(`/date/${selectDate}`);
+    };
+
+    if (loading) {
+        return <Loading open={loading} />;
+    }
     return (
-        <main>
-            {/* Hero unit */}
-            <Box
-                sx={{
-                    bgcolor: 'background.paper',
-                    pt: 8,
-                    pb: 6,
-                }}>
-                <Container maxWidth="sm">
-                    <Typography
-                        component="h1"
-                        variant="h2"
-                        align="center"
-                        color="text.primary"
-                        gutterBottom>
-                        Album layout
-                    </Typography>
-                    <Typography
-                        variant="h5"
-                        align="center"
-                        color="text.secondary"
-                        paragraph>
-                        Something short and leading about the collection
-                        below—its contents, the creator, etc. Make it short and
-                        sweet, but not too short so folks don&apos;t simply skip
-                        over it entirely.
-                    </Typography>
-                    <Stack
-                        sx={{ pt: 4 }}
-                        direction="row"
-                        spacing={2}
-                        justifyContent="center">
-                        <Button variant="contained">Main call to action</Button>
-                        <Button variant="outlined">Secondary action</Button>
-                    </Stack>
-                </Container>
-            </Box>
-            <Container sx={{ py: 8 }} maxWidth="md">
-                {/* End hero unit */}
-                <Grid container spacing={4}>
-                    {cards.map(card => (
-                        <Grid item key={card} xs={12} sm={6} md={4}>
-                            <Card
-                                sx={{
-                                    height: '100%',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                }}>
-                                <CardMedia
-                                    component="img"
-                                    sx={{
-                                        // 16:9
-                                        pt: '56.25%',
-                                    }}
-                                    image="https://source.unsplash.com/random"
-                                    alt="random"
-                                />
-                                <CardContent sx={{ flexGrow: 1 }}>
-                                    <Typography
-                                        gutterBottom
-                                        variant="h5"
-                                        component="h2">
-                                        Heading
-                                    </Typography>
-                                    <Typography>
-                                        This is a media card. You can use this
-                                        section to describe the content.
-                                    </Typography>
-                                </CardContent>
-                                <CardActions>
-                                    <Button size="small">View</Button>
-                                    <Button size="small">Edit</Button>
-                                </CardActions>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
-            </Container>
-        </main>
+        <div {...handlers} className="frontCalendar">
+            <FullCalendar
+                ref={calendarRef}
+                plugins={[
+                    dayGridPlugin,
+                    timeGridPlugin,
+                    interactionPlugin,
+                    listPlugin,
+                ]}
+                headerToolbar={{
+                    start: "title",
+                    center: "",
+                    // end: "dayGridMonth,timeGridWeek,resourceTimeGridDay",
+                    // end: "",
+                    end: "today,prev,next",
+                }}
+                height={calendarHeight}
+                eventTimeFormat={{ hour: "2-digit", minute: "2-digit" }}
+                slotLabelFormat={[{ hour: "2-digit", minute: "2-digit" }]}
+                // initialView="resourceTimeGridDay"
+                // eventContent={renderEventContent}
+                selectable={true}
+                editable={false}
+                // showNonCurrentDates={false}
+
+                // selectMirror={true}
+                dayMaxEvents={true}
+                navLinks={true}
+                nowIndicator={true}
+                events={publicTasks}
+                aspectRatio={1}
+                locales={allLocales}
+                locale="ja"
+                navLinkDayClick={handleDateSelect}
+                // eventsSet={handleEvents}
+                // select={handleDateSelect}
+                // eventClick={handleEventClick}
+                // dayCellContent={(event: DayCellContentArg) =>
+                //     (event.dayNumberText = event.dayNumberText.replace(
+                //         "日",
+                //         ""
+                //     ))
+                // }
+            />
+        </div>
     );
 };
 
-Home.getLayout = page => <Layout title={"トップページ"} link={""}>{page}</Layout>;
-
-export default Home;
+export default TopPage;

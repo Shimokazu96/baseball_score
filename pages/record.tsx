@@ -15,7 +15,7 @@ const BattingRecordPage: NextPageWithLayout = () => {
 
     const insertBattingRecord = async () => {
         await axios
-            .post('/api/batting', {
+            .post('/api/record', {
                 batting_record: BattingRecord,
             })
             .then(res => {
@@ -25,6 +25,10 @@ const BattingRecordPage: NextPageWithLayout = () => {
 
     const hit = () => {
         setInputStatus('hit');
+    };
+    const out = () => {
+        setInputStatus('out');
+        setThisPlateAppearance('アウト');
     };
     const other = () => {
         setInputStatus('other');
@@ -70,13 +74,14 @@ const BattingRecordPage: NextPageWithLayout = () => {
     const NextPlateAppearance = () => {
         setBattingRecord([...BattingRecord, ThisPlateAppearance]);
         setPlateAppearance(PlateAppearance + 1);
+        setThisPlateAppearance('');
         confirm();
     };
-    const out = () => {
-        setBattingRecord([...BattingRecord, 'アウト']);
-        setPlateAppearance(PlateAppearance + 1);
-        confirm();
-    };
+    // const out = () => {
+    //     setBattingRecord([...BattingRecord, 'アウト']);
+    //     setPlateAppearance(PlateAppearance + 1);
+    //     confirm();
+    // };
 
     return (
         <>
@@ -132,6 +137,33 @@ const BattingRecordPage: NextPageWithLayout = () => {
                                 </Button>
                             </Stack>
                         </>
+                    ) : InputStatus === 'out' && ThisPlateAppearance !== '' ? (
+                        <>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    p: 1,
+                                    m: 1,
+                                    bgcolor: 'background.paper',
+                                    width: '100%',
+                                    flexWrap: 'wrap',
+                                }}>
+                                <Button
+                                    variant="outlined"
+                                    sx={{
+                                        mr: 1,
+                                    }}
+                                    onClick={() => init()}>
+                                    戻る
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    onClick={() => NextPlateAppearance()}>
+                                    決定する
+                                </Button>
+                            </Box>
+                        </>
                     ) : InputStatus === 'confirm' ? (
                         <>
                             <Stack
@@ -151,7 +183,7 @@ const BattingRecordPage: NextPageWithLayout = () => {
                                 </Button>
                             </Stack>
                         </>
-                    ) : InputStatus === 'hit' ? (
+                    ) : InputStatus === 'hit' && ThisPlateAppearance === '' ? (
                         <>
                             <Box
                                 sx={{
@@ -184,36 +216,34 @@ const BattingRecordPage: NextPageWithLayout = () => {
                                     ホームラン
                                 </Button>
                             </Box>
-                            {ThisPlateAppearance !== '' ? (
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        p: 1,
-                                        m: 1,
-                                        bgcolor: 'background.paper',
-                                        width: '100%',
-                                        flexWrap: 'wrap',
-                                    }}>
-                                    <Button
-                                        variant="outlined"
-                                        sx={{
-                                            mr: 1,
-                                        }}
-                                        onClick={() => init()}>
-                                        戻る
-                                    </Button>
-                                    <Button
-                                        variant="outlined"
-                                        onClick={() => NextPlateAppearance()}>
-                                        決定する
-                                    </Button>
-                                </Box>
-                            ) : (
-                                <></>
-                            )}
                         </>
-                    ) : InputStatus === 'other' ? (
+                    ) : InputStatus === 'hit' && ThisPlateAppearance !== '' ? (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                p: 1,
+                                m: 1,
+                                bgcolor: 'background.paper',
+                                width: '100%',
+                                flexWrap: 'wrap',
+                            }}>
+                            <Button
+                                variant="outlined"
+                                sx={{
+                                    mr: 1,
+                                }}
+                                onClick={() => init()}>
+                                戻る
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                onClick={() => NextPlateAppearance()}>
+                                決定する
+                            </Button>
+                        </Box>
+                    ) : InputStatus === 'other' &&
+                      ThisPlateAppearance === '' ? (
                         <>
                             <Box
                                 sx={{
@@ -251,35 +281,33 @@ const BattingRecordPage: NextPageWithLayout = () => {
                                     エラー
                                 </Button>
                             </Box>
-                            {ThisPlateAppearance !== '' ? (
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        p: 1,
-                                        m: 1,
-                                        bgcolor: 'background.paper',
-                                        width: '100%',
-                                        flexWrap: 'wrap',
-                                    }}>
-                                    <Button
-                                        variant="outlined"
-                                        sx={{
-                                            mr: 1,
-                                        }}
-                                        onClick={() => init()}>
-                                        戻る
-                                    </Button>
-                                    <Button
-                                        variant="outlined"
-                                        onClick={() => NextPlateAppearance()}>
-                                        決定する
-                                    </Button>
-                                </Box>
-                            ) : (
-                                <></>
-                            )}
                         </>
+                    ) : InputStatus === 'other' &&
+                      ThisPlateAppearance !== '' ? (
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                p: 1,
+                                m: 1,
+                                bgcolor: 'background.paper',
+                                width: '100%',
+                                flexWrap: 'wrap',
+                            }}>
+                            <Button
+                                variant="outlined"
+                                sx={{
+                                    mr: 1,
+                                }}
+                                onClick={() => init()}>
+                                戻る
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                onClick={() => NextPlateAppearance()}>
+                                決定する
+                            </Button>
+                        </Box>
                     ) : (
                         <></>
                     )}
