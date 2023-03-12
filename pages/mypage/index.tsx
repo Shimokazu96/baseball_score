@@ -50,7 +50,7 @@ const MyPageList: NextPageWithLayout = () => {
 };
 
 MyPageList.getLayout = page => (
-    <Layout title={'打撃成績'} link={''}>
+    <Layout title={'マイページ'} link={''}>
         {page}
     </Layout>
 );
